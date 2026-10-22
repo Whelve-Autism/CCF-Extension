@@ -1,0 +1,28 @@
+.ccf-rank[data-ccfrank-owned="true"] {
+  display: inline-block !important;
+  box-sizing: border-box;
+  padding: 1px 7px;
+  margin-inline-start: 7px;
+  border-radius: 4px;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font:
+    600 11px/17px Arial,
+    "PingFang SC",
+    sans-serif;
+  white-space: nowrap;
+  vertical-align: 1px;
+  text-decoration: none;
+  direction: ltr;
+  unicode-bidi: isolate;
+  cursor: help;
+}
+.ccf-a[data-ccfrank-owned="true"] {
+  background-color: #ff0000;
+}
+.ccf-b[data-ccfrank-owned="true"] {
+  background-color: #ffb000;
+}
+.ccf-c[data-ccfrank-owned="true"] {
+  background-color: #00c853;
+}

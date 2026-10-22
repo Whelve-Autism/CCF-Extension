@@ -1,0 +1,11 @@
+{
+  "name": "ccf-extension",
+  "version": "4.8.2",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/*.test.cjs",
+    "test:browser": "node test/browser.cjs",
+    "test:extension": "node test/extension.cjs",
+    "build": "python3 tools/build.py"
+  }
+}
