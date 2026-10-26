@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">CCF Extension — Google Scholar CCF 2026</title>
+  <desc id="desc">在谷歌学术显示 CCF A、B、C 等级。红色 A，橙黄色 B，绿色 C；预印本不标注。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#f8faff"/>
+      <stop offset="1" stop-color="#edf2fa"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-color="#21345b" flood-opacity=".08"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <circle cx="1216" cy="16" r="234" fill="#e5edfa" opacity=".55"/>
+  <circle cx="1224" cy="16" r="172" fill="none" stroke="#d4e0f3"/>
+  <g font-family="Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <rect x="64" y="76" width="34" height="4" rx="2" fill="#2963ce"/>
+    <text x="64" y="117" font-size="17" font-weight="700" letter-spacing="2" fill="#476184">GOOGLE SCHOLAR · CCF 2026</text>
+    <text x="60" y="210" font-size="72" font-weight="700" letter-spacing="-3" fill="#152744">CCF Extension</text>
+    <text x="64" y="264" font-size="28" font-weight="500" fill="#263e5c">在谷歌学术中，看清论文来源。</text>
+    <text x="64" y="306" font-size="20" fill="#687c97">只显示 CCF A / B / C 等级</text>
+    <g font-size="19" font-weight="700" text-anchor="middle" fill="#fff">
+      <rect x="64" y="348" width="116" height="44" rx="9" fill="#ff0000"/>
+      <text x="122" y="377">CCF A</text>
+      <rect x="194" y="348" width="116" height="44" rx="9" fill="#ffb000"/>
+      <text x="252" y="377">CCF B</text>
+      <rect x="324" y="348" width="116" height="44" rx="9" fill="#00c853"/>
+      <text x="382" y="377">CCF C</text>
+    </g>
+    <text x="64" y="456" font-size="21" font-weight="500" fill="#354e70">来源识别 · 动态加载 · 本地匹配</text>
+    <text x="64" y="490" font-size="17" fill="#6c7f99">信息不足或名称冲突时，保留空白。</text>
+    <g filter="url(#shadow)">
+      <rect x="752" y="104" width="464" height="418" rx="18" fill="#fff" stroke="#dce4f0"/>
+    </g>
+    <circle cx="778" cy="131" r="4" fill="#cad5e6"/>
+    <circle cx="793" cy="131" r="4" fill="#cad5e6"/>
+    <circle cx="808" cy="131" r="4" fill="#cad5e6"/>
+    <text x="1190" y="137" font-size="13" text-anchor="end" letter-spacing="1" fill="#8696ad">SOURCE → RANK</text>
+    <path d="M752 156H1216" stroke="#e8edf5"/>
+    <g font-size="19" font-weight="600" fill="#263e5c">
+      <text x="782" y="200">INFOCOM / 2026</text>
+      <text x="782" y="280">ICPP / 51st</text>
+      <text x="782" y="360">ICPR</text>
+      <text x="782" y="440" fill="#8492a8">arXiv preprint</text>
+    </g>
+    <g font-size="13" fill="#8593a8">
+      <text x="782" y="226">Conference on Computer Communications</text>
+      <text x="782" y="306">International Conference on Parallel Processing</text>
+      <text x="782" y="386">International Conference on Pattern Recognition</text>
+      <text x="782" y="466">来源为预印本，保留空白</text>
+    </g>
+    <g font-size="14" font-weight="700" text-anchor="middle" fill="#fff">
+      <rect x="1100" y="179" width="88" height="30" rx="6" fill="#ff0000"/>
+      <text x="1144" y="200">CCF A</text>
+      <rect x="1100" y="259" width="88" height="30" rx="6" fill="#ffb000"/>
+      <text x="1144" y="280">CCF B</text>
+      <rect x="1100" y="339" width="88" height="30" rx="6" fill="#00c853"/>
+      <text x="1144" y="360">CCF C</text>
+    </g>
+    <path d="M782 246H1188M782 326H1188M782 406H1188" stroke="#f0f3f8"/>
+    <path d="M64 564H1216" stroke="#dce4f0"/>
+    <text x="64" y="600" font-size="15" fill="#6c7f99">Google Scholar only. Local matching.</text>
+    <text x="1216" y="600" text-anchor="end" font-size="15" fill="#6c7f99">Manifest V3 · MIT</text>
+  </g>
+</svg>
