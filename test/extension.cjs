@@ -80,6 +80,13 @@ const selector = '[data-ccfrank-owned="true"]';
         .locator("#late " + selector)
         .screenshot({ path: process.env.CCF_BADGE_PREVIEW, scale: "css" });
     await page.locator("#late .gs_a").evaluate((el) => {
+      el.textContent =
+        "F Sun, F Dong, D Shen - IEEE INFOCOM 2026-IEEE Conference on Computer Communications, 1-10 - ieeexplore.ieee.org";
+    });
+    await page.waitForFunction(
+      () => document.querySelector("#late [data-ccfrank-owned]")?.textContent === "CCF A",
+    );
+    await page.locator("#late .gs_a").evaluate((el) => {
       el.textContent = "A Author - ICML - Workshop, 2024 - example.org";
     });
     await page.waitForFunction(
@@ -94,6 +101,28 @@ const selector = '[data-ccfrank-owned="true"]';
         document.querySelector("#profile [data-ccfrank-owned]")?.textContent ===
         "CCF B",
     );
+    await page.waitForFunction(
+      () => document.querySelector("#infocom [data-ccfrank-owned]")?.textContent === "CCF A",
+    );
+    assert.equal(
+      await page.locator("#infocom " + selector)
+        .evaluate((el) => getComputedStyle(el).backgroundColor),
+      "rgb(255, 0, 0)",
+    );
+    if (process.env.CCF_INFOCOM_PREVIEW)
+      await page.locator("#infocom .gsc_a_t").screenshot({
+        path: process.env.CCF_INFOCOM_PREVIEW,
+      });
+    await page.locator("#infocom .gs_gray").nth(1).evaluate((el) => {
+      el.textContent = "IEEE INFOCOM 2026-IEEE Conference on Computer Communications Workshops, 1-10";
+    });
+    await page.waitForFunction(
+      () => !document.querySelector("#infocom [data-ccfrank-owned]"),
+    );
+    await page.reload();
+    await page.waitForFunction(
+      () => document.querySelector("#infocom [data-ccfrank-owned]")?.textContent === "CCF A",
+    );
     for (const url of [
       "https://www.google.com/search?q=extension-test",
       "https://dblp.org/search?q=extension-test",
@@ -106,7 +135,7 @@ const selector = '[data-ccfrank-owned="true"]';
     }
     assert.deepEqual(errors, []);
     console.log(
-      "Actual unpacked extension passed: Chrome manifest injection, isolated scripts, CSS colors, years, dynamic edits, refresh, profiles, and Google-Scholar-only scope.",
+      "Actual unpacked extension passed: Chrome manifest injection, isolated scripts, CSS colors, years, INFOCOM search/profile regression, dynamic edits, refresh, and Google-Scholar-only scope.",
     );
   } finally {
     await context?.close();

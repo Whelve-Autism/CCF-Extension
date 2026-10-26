@@ -82,6 +82,13 @@ const { searchHTML, profileHTML } = require("./fixtures.cjs");
         document.querySelector("#late [data-ccfrank-owned]")?.textContent ===
         "CCF B",
     );
+    await page.locator("#late .gs_a").evaluate((el) => {
+      el.textContent =
+        "F Sun, F Dong, D Shen - IEEE INFOCOM 2026-IEEE Conference on Computer Communications, 1-10 - ieeexplore.ieee.org";
+    });
+    await page.waitForFunction(
+      () => document.querySelector("#late [data-ccfrank-owned]")?.textContent === "CCF A",
+    );
     // Qualifiers after a year must survive extraction and remove a former badge.
     await page.locator("#late .gs_a").evaluate((el) => {
       el.textContent = "A Author - ICWS, 2019, Workshop - ieeexplore.ieee.org";
@@ -174,6 +181,10 @@ const { searchHTML, profileHTML } = require("./fixtures.cjs");
       () => !!document.querySelector("#profile [data-ccfrank-owned]"),
     );
     assert.equal(await text("profile"), "CCF B");
+    await page.waitForFunction(
+      () => document.querySelector("#infocom [data-ccfrank-owned]")?.textContent === "CCF A",
+    );
+    assert.equal(await text("infocom"), "CCF A");
     await page.evaluate(
       () =>
         (document.getElementById("gsc_bpf_more").onclick = () =>

@@ -77,6 +77,21 @@ ccf.ensureVenueIndex = function () {
     byUrl.set(url, entry);
     addName(full, entry, false);
     addName(abbr, entry, true);
+    // Accept sponsor-qualified acronyms only when the catalog names that
+    // sponsor, e.g. IEEE ICWS or IEEE/ACM MICRO. Do not drop arbitrary prefixes.
+    const sponsor = full.match(/^((?:IEEE|ACM)(?:\/[A-Z]+)?)\s+/);
+    if (
+      url.startsWith("/conf/") &&
+      abbr &&
+      sponsor &&
+      !/^(?:IEEE|ACM)\b/.test(abbr)
+    ) {
+      const prefixes = new Set([
+        sponsor[1],
+        ...sponsor[1].split("/").filter((name) => /^(?:IEEE|ACM)$/.test(name)),
+      ]);
+      for (const prefix of prefixes) addName(prefix + " " + abbr, entry, true);
+    }
   });
 
   Object.entries(ccf.venueAliases || {}).forEach(function ([url, aliases]) {
@@ -183,13 +198,9 @@ ccf.significantWords = function (value) {
     );
 };
 
-ccf.matchVenueName = function (raw) {
-  const cacheKey = String(raw || "").trim();
-  if (!cacheKey || ccf.isExcludedPublication(cacheKey)) return null;
-  if (ccf._matchCache.has(cacheKey)) return ccf._matchCache.get(cacheKey);
-  const index = ccf.ensureVenueIndex();
-  const variants = ccf.venueNameVariants(cacheKey);
-  const hasEllipsis = /…|\.{3}/.test(cacheKey);
+ccf.findNameCandidates = function (variants, index) {
+  const source = variants[0] || "";
+  const hasEllipsis = /…|\.{3}/.test(source);
   const candidates = new Set();
   let method = "exact";
 
@@ -200,26 +211,22 @@ ccf.matchVenueName = function (raw) {
 
   if (!hasEllipsis) {
     variants.forEach(collectExact);
-    // Both names must identify the same entry; never blindly discard a suffix.
-    for (const value of variants) {
-      const suffix = value.match(/^(.*?)\s*\(([\w &+\-/]+)\)\s*$/);
-      if (!suffix) continue;
-      const left = index.byName.get(ccf.normalizeVenueName(suffix[1]));
-      const right = index.byName.get(ccf.normalizeVenueName(suffix[2]));
-      if (left && right)
-        for (const entry of left) if (right.has(entry)) candidates.add(entry);
-    }
   }
 
   // Workshops explicitly listed in CCF can match above. Added workshop/track
   // qualifiers must never inherit the parent conference rank.
   const restricted =
     /\b(?:workshops?|symposia|posters?|demos?|demonstrations?|tracks?)\b/i.test(
-      cacheKey,
+      source,
     );
   if (candidates.size === 0 && !restricted) {
     if (hasEllipsis) {
       method = "truncated";
+      const generic = [
+        "ieee", "acm", "cvf", "international", "conference", "congress",
+        "symposium", "journal", "transactions", "proceedings", "computer",
+        "computing", "systems",
+      ];
       for (const value of variants) {
         const parts = value.split(/…|\.{3}/);
         if (parts.length !== 2) continue;
@@ -227,6 +234,16 @@ ccf.matchVenueName = function (raw) {
         const tail = ccf.significantWords(parts[1]);
         // Bare acronyms and generic 'IEEE Transactions on …' are insufficient.
         if (head.length < 3 || head.join(" ").length < 18) continue;
+        // Generic prefixes such as 'IEEE Conference on Computer …' do not
+        // identify a venue, even when one indexed alias happens to be shorter.
+        if (
+          ![...head, ...tail].some((word) =>
+            !generic.some(
+              (name) => name === word || (word.length >= 3 && name.startsWith(word)),
+            ),
+          )
+        )
+          continue;
         for (const name of index.names) {
           const words = name.words;
           if (head.length + tail.length > words.length) continue;
@@ -263,6 +280,56 @@ ccf.matchVenueName = function (raw) {
           }
         }
       }
+    }
+  }
+
+  return { candidates, method };
+};
+
+ccf.matchVenueName = function (raw) {
+  const cacheKey = String(raw || "").trim();
+  if (!cacheKey || ccf.isExcludedPublication(cacheKey)) return null;
+  if (ccf._matchCache.has(cacheKey)) return ccf._matchCache.get(cacheKey);
+  const index = ccf.ensureVenueIndex();
+  const variants = ccf.venueNameVariants(cacheKey);
+  const found = ccf.findNameCandidates(variants, index);
+  const candidates = found.candidates;
+  let method = found.method;
+  const parts = new Map();
+
+  function resolvePart(value) {
+    const key = value.trim();
+    if (!parts.has(key))
+      parts.set(key, ccf.findNameCandidates(ccf.venueNameVariants(key), index));
+    return parts.get(key);
+  }
+
+  function collectPair(left, right) {
+    if (!left.trim() || !right.trim()) return;
+    const first = resolvePart(left);
+    if (!first.candidates.size) return;
+    const second = resolvePart(right);
+    for (const entry of first.candidates) {
+      if (!second.candidates.has(entry)) continue;
+      candidates.add(entry);
+      if (first.method === "truncated" || second.method === "truncated")
+        method = "truncated";
+      else if (first.method === "abbreviated" || second.method === "abbreviated")
+        method = "abbreviated";
+    }
+  }
+
+  // IEEE metadata can repeat a venue as "ACRONYM YEAR - Full Name".
+  // Resolve both complete halves without recursion; a keyword on only one
+  // side, a conflicting name, or an extra track qualifier cannot authorize it.
+  for (const value of variants) {
+    const suffix = value.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+    if (suffix) collectPair(suffix[1], suffix[2]);
+    for (const separator of value.matchAll(/[-\u2010-\u2015:]/g)) {
+      collectPair(
+        value.slice(0, separator.index),
+        value.slice(separator.index + separator[0].length),
+      );
     }
   }
 

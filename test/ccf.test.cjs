@@ -25,6 +25,23 @@ const ranked = [
   ["IJCAI", "B"],
   ["AAAI", "A"],
   ["ICPR", "C"],
+  ["IEEE INFOCOM 2026-IEEE Conference on Computer Communications, 1-10", "A"],
+  ["IEEE INFOCOM", "A"],
+  ["IEEE Conference on Computer Communications", "A"],
+  ["IEEE INFOCOM 2026 — IEEE Conference on Computer Communications", "A"],
+  ["IEEE INFOCOM 2026: IEEE Conference on Computer Communications", "A"],
+  ["IEEE INFOCOM 2026 – IEEE Conf. on Comput. Commun.", "A"],
+  ["IEEE INFOCOM 2026 - IEEE Conference on Computer Commun…", "A"],
+  ["IEEE Conference on Computer Communications (IEEE INFOCOM 2026)", "A"],
+  ["IEEE INFOCOM 2026 (IEEE Conference on Computer Communications)", "A"],
+  ["Proceedings of IEEE INFOCOM 2026 - IEEE Conference on Computer Communications", "A"],
+  ["ICWS 2019 - IEEE International Conference on Web Services", "B"],
+  ["IEEE International Conference on Web Services - ICWS 2019", "B"],
+  ["ICWS: IEEE Int. Conf. on Web Services", "B"],
+  ["IEEE ICWS 2019-IEEE International Conference on Web Services, 1-8", "B"],
+  ["ACM MobiCom 2026-ACM International Conference on Mobile Computing and Networking", "A"],
+  ["IEEE/ACM MICRO 2026-IEEE/ACM International Symposium on Microarchitecture", "A"],
+  ["WWW 2026 - The Web Conference", "A"],
   ["Proceedings of the 51st International Conference on Parallel Processing", "B"],
   ["Proc of the 51st International Conference on Parallel Processing", "B"],
   ["In Proceedings of the 51st International Conference on Parallel Processing", "B"],
@@ -151,6 +168,25 @@ const unranked = [
   "Proceedings of the 51st Unknown International Conference on Parallel Processing",
   "Workshop Proceedings of the 51st International Conference on Parallel Processing",
   "Proceedings of the 51st International Conference on Parallel Processing (ICML)",
+  "IEEE INFOCOM 2026-IEEE Conference on Computer Communications Workshops, 1-10",
+  "IEEE INFOCOM 2026-IEEE Conference on Computer Communications - Workshop",
+  "IEEE INFOCOM 2026-IEEE Conference on Computer Communications, arXiv preprint",
+  "IEEE INFOCOM 2026-IEEE Conference on Computer Communications Companion",
+  "IEEE INFOCOM 2026 - IEEE International Conference on Web Services",
+  "ICML 2026 - IEEE Conference on Computer Communications",
+  "IEEE INFOCOM 2026 - Computer Communications",
+  "IEEE INFOCOM 2026 - IEEE International Conference on Computer Communications and Networks",
+  "IEEE INFOCOM 2026 - IEEE Conference on Computer Communications and Applications",
+  "IEEE INFOCOM 2026 - Some unknown publication",
+  "An INFOCOM paper - IEEE Conference on Computer Communications",
+  "INFOCOM - IEEE Conference on Computer Communications - ICML",
+  "IEEE Conference on Computer Communications (ICML)",
+  "IEEE INFOCOM - IEEE Conference on …",
+  "Unknown INFOCOM - IEEE Conference on Computer Communications",
+  "IEEE ICML - International Conference on Machine Learning",
+  "IEEE Conference on Computer …",
+  "IEEE INFOCOM 2026 - IEEE Conference on Computer …",
+  "IEEE Conf. on Comput. …",
 ];
 for (const source of unranked) {
   test("withholds " + (source || "empty source"), () => {
@@ -278,6 +314,40 @@ test("proceedings prefixes and edition counters preserve the complete venue iden
       assert.equal(ccf.matchVenueName(decorated), null, decorated);
       checked++;
     }
+  }
+  assert.ok(checked > 3000);
+});
+
+test("paired conference names require agreement across the complete catalog", () => {
+  const index = ccf.ensureVenueIndex();
+  let checked = 0;
+  for (const [url, rank, abbr, full] of ccf.catalogEntries) {
+    if (!url.startsWith("/conf/") || !abbr) continue;
+    const current = ccf.matchVenueName(full);
+    if (!current || !index.byName.get(ccf.normalizeVenueName(abbr))?.has(index.byUrl.get(url)))
+      continue;
+    const qualified = full.match(/^((?:IEEE|ACM)(?:\/[A-Z]+)?)\s+/);
+    const short = qualified && !/^(?:IEEE|ACM)\b/.test(abbr)
+      ? qualified[1] + " " + abbr
+      : abbr;
+    for (const decorated of [
+      `${abbr} 2026-${full}, 1-10`,
+      `${full} - ${abbr} 2019`,
+      `${abbr}: ${full}`,
+      `${full} (${abbr} 2026)`,
+      `${short} 2026-${full}`,
+    ]) {
+      assert.equal(ccf.matchVenueName(decorated)?.refine, current.refine, decorated);
+      checked++;
+    }
+    for (const suffix of ["Workshop", "Companion", "Findings", "arXiv preprint", "and Unknown Applications"]) {
+      const decorated = `${short} 2026-${full} ${suffix}`;
+      assert.equal(ccf.matchVenueName(decorated), null, decorated);
+      checked++;
+    }
+    const other = current.refine === "/conf/icml/icml" ? "INFOCOM" : "ICML";
+    assert.equal(ccf.matchVenueName(`${other} 2026 - ${full}`), null, full);
+    checked++;
   }
   assert.ok(checked > 3000);
 });

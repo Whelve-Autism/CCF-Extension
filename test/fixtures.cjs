@@ -12,6 +12,7 @@ h3{font-size:19px;font-weight:normal;margin:0 0 4px}a{color:#1a0dab}.gs_a{color:
 </main></body></html>`;
 const profileHTML = `<!doctype html><meta charset="utf-8"><table id="gsc_a_t"><tbody>
 <tr class="gsc_a_tr" id="profile"><td class="gsc_a_t"><a class="gsc_a_at" href="/citations?view_op=view_citation">Profile paper</a><div class="gs_gray">ICML NeurIPS Author</div><div class="gs_gray">World Wide Web 27 (1), 1-12, 2024</div></td></tr>
+<tr class="gsc_a_tr" id="infocom"><td class="gsc_a_t"><a class="gsc_a_at" href="/citations?view_op=view_citation&amp;citation_for_view=infocom">Decentralizing Compressed Sensing for Federated Learning with Hardware–Software Codesign</a><div class="gs_gray">F Sun, F Dong, D Shen</div><div class="gs_gray">IEEE INFOCOM 2026-IEEE Conference on Computer Communications, 1-10</div></td></tr>
 </tbody></table><button id="gsc_bpf_more"><span>显示更多</span></button>`;
 
 module.exports = { searchHTML, profileHTML };

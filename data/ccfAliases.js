@@ -1,7 +1,8 @@
 /** Explicit alternate venue names; never used as substring keywords.
- * Former names below follow rename notes in the CCF 2026 official catalog.
+ * Former names follow the CCF 2026 catalog; publication titles follow publishers.
  */
 ccf.venueAliases = {
+  "/conf/infocom/infocom": ["IEEE Conference on Computer Communications"],
   "/conf/nips/neurips": [
     "NIPS",
     "Neural Information Processing Systems",
