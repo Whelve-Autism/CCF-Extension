@@ -1,6 +1,6 @@
 {
   "name": "CCF_Extension",
-  "version": "4.8.3",
+  "version": "4.8.4",
   "description": "仅在 Google 学术显示 CCF 2026 A/B/C 等级，支持缩写、年份清理和动态加载。",
   "manifest_version": 3,
   "icons": {

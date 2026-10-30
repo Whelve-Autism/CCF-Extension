@@ -11,7 +11,7 @@ const source = content.js
   .join("\n");
 const css = fs.readFileSync(path.join(root, "css/style.css"), "utf8");
 const selector = '[data-ccfrank-owned="true"]';
-const { searchHTML, profileHTML } = require("./fixtures.cjs");
+const { searchHTML, profileHTML, seconTruncatedSource } = require("./fixtures.cjs");
 
 (async function () {
   const browser = await chromium.launch({
@@ -90,6 +90,12 @@ const { searchHTML, profileHTML } = require("./fixtures.cjs");
       () => document.querySelector("#late [data-ccfrank-owned]")?.textContent === "CCF A",
     );
     // Qualifiers after a year must survive extraction and remove a former badge.
+    await page.locator("#late .gs_a").evaluate((el, source) => {
+      el.textContent = "S Fu, F Dong, D Shen, Q He - " + source + " - ieeexplore.ieee.org";
+    }, seconTruncatedSource);
+    await page.waitForFunction(
+      () => document.querySelector("#late [data-ccfrank-owned]")?.textContent === "CCF B",
+    );
     await page.locator("#late .gs_a").evaluate((el) => {
       el.textContent = "A Author - ICWS, 2019, Workshop - ieeexplore.ieee.org";
     });
@@ -185,6 +191,9 @@ const { searchHTML, profileHTML } = require("./fixtures.cjs");
       () => document.querySelector("#infocom [data-ccfrank-owned]")?.textContent === "CCF A",
     );
     assert.equal(await text("infocom"), "CCF A");
+    await page.waitForFunction(
+      () => document.querySelector("#secon [data-ccfrank-owned]")?.textContent === "CCF B",
+    );
     await page.evaluate(
       () =>
         (document.getElementById("gsc_bpf_more").onclick = () =>

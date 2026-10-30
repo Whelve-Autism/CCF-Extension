@@ -10,9 +10,12 @@ h3{font-size:19px;font-weight:normal;margin:0 0 4px}a{color:#1a0dab}.gs_a{color:
 <div class="gs_ri" id="findings"><h3 class="gs_rt"><a href="https://aclanthology.org/">A Findings paper</a></h3><div class="gs_a">A Author - Findings of the Association for Computational Linguistics: ACL, 2025 - aclanthology.org</div></div>
 <div class="gs_ri" id="citation"><h3 class="gs_rt">[CITATION] A citation-only result</h3><div class="gs_a">A Author - ICPR, 2024</div></div>
 </main></body></html>`;
+const seconFullSource = "2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking (SECON)";
+const seconTruncatedSource = "2023 20th Annual IEEE International Conference on Sensing, Communication …";
 const profileHTML = `<!doctype html><meta charset="utf-8"><table id="gsc_a_t"><tbody>
 <tr class="gsc_a_tr" id="profile"><td class="gsc_a_t"><a class="gsc_a_at" href="/citations?view_op=view_citation">Profile paper</a><div class="gs_gray">ICML NeurIPS Author</div><div class="gs_gray">World Wide Web 27 (1), 1-12, 2024</div></td></tr>
 <tr class="gsc_a_tr" id="infocom"><td class="gsc_a_t"><a class="gsc_a_at" href="/citations?view_op=view_citation&amp;citation_for_view=infocom">Decentralizing Compressed Sensing for Federated Learning with Hardware–Software Codesign</a><div class="gs_gray">F Sun, F Dong, D Shen</div><div class="gs_gray">IEEE INFOCOM 2026-IEEE Conference on Computer Communications, 1-10</div></td></tr>
+<tr class="gsc_a_tr" id="secon"><td class="gsc_a_t"><a class="gsc_a_at" href="/citations?view_op=view_citation&amp;citation_for_view=secon">Joint quality evaluation, model splitting and resource provisioning for split edge learning</a><div class="gs_gray">S Fu, F Dong, D Shen, Q He</div><div class="gs_gray">${seconTruncatedSource}</div></td></tr>
 </tbody></table><button id="gsc_bpf_more"><span>显示更多</span></button>`;
 
-module.exports = { searchHTML, profileHTML };
+module.exports = { searchHTML, profileHTML, seconFullSource, seconTruncatedSource };

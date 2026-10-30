@@ -140,6 +140,17 @@ ccf.stripProceedingsPrefix = function (value) {
   return name;
 };
 
+ccf.stripAnnualPrefix = function (value) {
+  // Only add a conference-prefix variant. Annual can belong to the official
+  // name (ACL/ACSAC/FOCS), so callers must retain the unmodified name too.
+  if (!/\b(?:conference|conf|symposium|symp|workshop|congress|meeting)\b/i.test(value))
+    return value;
+  return value
+    .replace(/^annual\s+/i, "")
+    .replace(/^((?:IEEE|ACM)(?:\/[A-Z]+)?\s+)annual\s+/i, "$1")
+    .trim();
+};
+
 ccf.venueNameVariants = function (raw) {
   const variants = new Set();
   let value = String(raw || "")
@@ -174,7 +185,9 @@ ccf.venueNameVariants = function (raw) {
   for (const item of [...variants]) {
     const withoutYear = item.replace(/^(?:19|20)\d{2}\s+/, "");
     variants.add(withoutYear);
-    variants.add(ccf.stripProceedingsPrefix(withoutYear));
+    const withoutProceedings = ccf.stripProceedingsPrefix(withoutYear);
+    variants.add(withoutProceedings);
+    variants.add(ccf.stripAnnualPrefix(withoutProceedings));
   }
   for (const item of [...variants]) {
     variants.add(item.replace(/^the\s+/i, ""));

@@ -100,9 +100,11 @@ scholar.scan = function () {
   if (title) {
     let source = "";
     for (const row of detail?.querySelectorAll(".gs_scl") || []) {
-      const field = row.querySelector(".gsc_oci_field")?.textContent.trim();
+      const field = row.querySelector(".gsc_oci_field")?.textContent
+        .replace(/[:：]\s*$/, "")
+        .trim();
       if (
-        /^(?:journal|conference|publication|source|期刊|会议|出版物|来源)$/i.test(
+        /^(?:journal|conference(?:\s+proceedings)?|publication|source|期刊|期刊名称|会议|会议名称|会议论文|研讨会论文|出版物|来源)$/i.test(
           field || "",
         )
       ) {

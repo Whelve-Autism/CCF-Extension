@@ -25,6 +25,23 @@ const ranked = [
   ["IJCAI", "B"],
   ["AAAI", "A"],
   ["ICPR", "C"],
+  ["2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking (SECON)", "B"],
+  ["2023 20th Annual IEEE International Conference on Sensing, Communication …", "B"],
+  ["2023 20th Annual IEEE International Conference on Sensing, Communication ...", "B"],
+  ["Annual IEEE International Conference on Sensing, Communication, and Networking", "B"],
+  ["2023 IEEE 20th Annual International Conference on Sensing, Communication, and Networking (SECON)", "B"],
+  ["Proceedings of the 20th Annual IEEE International Conference on Sensing, Communication, and Networking", "B"],
+  ["Proceedings of the Twentieth Annual IEEE International Conference on Sensing, Communication, and Networking (SECON)", "B"],
+  ["In: Proc. of the Twenty First Annual IEEE International Conference on Sensing, Communication, and Networking", "B"],
+  ["2023 20th Annual IEEE Int. Conf. on Sensing, Commun., and Networking (SECON)", "B"],
+  ["2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking, 420-428", "B"],
+  ["2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking, pp. 420–428", "B"],
+  ["2023 20th Annual IEEE International Conference on Sensing, Communication …, 2023", "B"],
+  ["Proceedings of the 51st Annual International Conference on Parallel Processing", "B"],
+  ["2023 Annual ACM International Conference on Mobile Computing and Networking", "A"],
+  ["2023 64th IEEE Annual Symposium on Foundations of Computer Science (FOCS)", "A"],
+  ["Annual Meeting of the Association for Computational Linguistics", "A"],
+  ["Annual Computer Security Applications Conference", "B"],
   ["IEEE INFOCOM 2026-IEEE Conference on Computer Communications, 1-10", "A"],
   ["IEEE INFOCOM", "A"],
   ["IEEE Conference on Computer Communications", "A"],
@@ -187,6 +204,21 @@ const unranked = [
   "IEEE Conference on Computer …",
   "IEEE INFOCOM 2026 - IEEE Conference on Computer …",
   "IEEE Conf. on Comput. …",
+  "2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking Workshops (SECON)",
+  "2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking (SECON) - Workshop",
+  "2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking (INFOCOM)",
+  "2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking Companion",
+  "2023 20th Annual IEEE International Conference on Sensing, Communication, and Networking - arXiv preprint",
+  "2023 20th Annual IEEE International Conference on Sensing, Communication and Applications (SECON)",
+  "2023 20th Annual IEEE International Conference …",
+  "2023 20th Annual IEEE International Conference on Sensing, Communication … Workshops",
+  "Workshop Proceedings of the 20th Annual IEEE International Conference on Sensing, Communication, and Networking",
+  "2023 20th Unknown IEEE International Conference on Sensing, Communication, and Networking (SECON)",
+  "2023 20th Monthly IEEE International Conference on Sensing, Communication, and Networking (SECON)",
+  "Annual IEEE Transactions on Mobile Computing",
+  "2023 Annual IEEE Transactions on Pattern Analysis and Machine Intelligence",
+  "Annual Review of International Conference on Machine Learning",
+  "Annual Meeting of the Association for Computational Linguistics Findings",
 ];
 for (const source of unranked) {
   test("withholds " + (source || "empty source"), () => {
@@ -316,6 +348,32 @@ test("proceedings prefixes and edition counters preserve the complete venue iden
     }
   }
   assert.ok(checked > 3000);
+});
+
+test("annual edition prefixes preserve venue identities and disqualifying tracks", () => {
+  let checked = 0;
+  for (const [url, rank, abbr, full] of ccf.catalogEntries) {
+    if (!url.startsWith("/conf/") || !/\b(?:conference|symposium|workshop|congress|meeting)\b/i.test(full))
+      continue;
+    const current = ccf.matchVenueName(full);
+    if (!current) continue;
+    const annual = /\bannual\b/i.test(full) ? full : "Annual " + full;
+    for (const decorated of [
+      `2023 20th ${annual}`,
+      `Proceedings of the 20th ${annual}`,
+      `In: Proc. of the Twentieth ${annual}`,
+      `2023 20th ${annual}, 420-428`,
+    ]) {
+      assert.equal(ccf.matchVenueName(decorated)?.refine, current.refine, decorated);
+      checked++;
+    }
+    for (const suffix of ["Workshop", "Findings", "Companion", "arXiv preprint", "and Unknown Applications"]) {
+      const decorated = `2023 20th ${annual} - ${suffix}`;
+      assert.equal(ccf.matchVenueName(decorated), null, decorated);
+      checked++;
+    }
+  }
+  assert.ok(checked > 2000);
 });
 
 test("paired conference names require agreement across the complete catalog", () => {

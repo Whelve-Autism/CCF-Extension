@@ -5,7 +5,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { searchHTML, profileHTML } = require("./fixtures.cjs");
+const { searchHTML, profileHTML, seconFullSource, seconTruncatedSource } = require("./fixtures.cjs");
 const root = path.resolve(
   process.env.CCF_EXTENSION_ROOT || path.join(__dirname, ".."),
 );
@@ -92,6 +92,20 @@ const selector = '[data-ccfrank-owned="true"]';
     await page.waitForFunction(
       () => !document.querySelector("#late [data-ccfrank-owned]"),
     );
+    for (const source of [seconFullSource, seconTruncatedSource]) {
+      await page.locator("#late .gs_a").evaluate((el) => {
+        el.textContent = "S Fu - arXiv preprint, 2023 - arxiv.org";
+      });
+      await page.waitForFunction(
+        () => !document.querySelector("#late [data-ccfrank-owned]"),
+      );
+      await page.locator("#late .gs_a").evaluate((el, value) => {
+        el.textContent = "S Fu, F Dong, D Shen, Q He - " + value + " - ieeexplore.ieee.org";
+      }, source);
+      await page.waitForFunction(
+        () => document.querySelector("#late [data-ccfrank-owned]")?.textContent === "CCF B",
+      );
+    }
     await page.reload();
     await page.waitForSelector(selector);
     assert.equal(await page.locator(selector).count(), 3);
@@ -104,6 +118,37 @@ const selector = '[data-ccfrank-owned="true"]';
     await page.waitForFunction(
       () => document.querySelector("#infocom [data-ccfrank-owned]")?.textContent === "CCF A",
     );
+    await page.waitForFunction(
+      () => document.querySelector("#secon [data-ccfrank-owned]")?.textContent === "CCF B",
+    );
+    if (process.env.CCF_SECON_PREVIEW)
+      await page.locator("#secon .gsc_a_t").screenshot({
+        path: process.env.CCF_SECON_PREVIEW,
+      });
+    await page.evaluate((source) => {
+      document.body.insertAdjacentHTML("beforeend",
+        '<div id="gsc_oci_title">Publication detail</div><div id="gsc_oci_table"><div class="gs_scl"><div class="gsc_oci_field">研讨会论文</div><div class="gsc_oci_value">' + source + '</div></div></div>');
+    }, seconFullSource);
+    const detailBadge = "#gsc_oci_title + " + selector;
+    await page.waitForFunction(
+      () => document.querySelector("#gsc_oci_title + [data-ccfrank-owned]")?.textContent === "CCF B",
+    );
+    for (const label of ["会议名称：", "Conference proceedings:", "研讨会论文"]) {
+      await page.locator(".gsc_oci_field").evaluate((el) => { el.textContent = "论文标题"; });
+      await page.waitForFunction(
+        () => !document.querySelector("#gsc_oci_title + [data-ccfrank-owned]"),
+      );
+      await page.locator(".gsc_oci_field").evaluate((el, value) => { el.textContent = value; }, label);
+      await page.waitForFunction(
+        () => document.querySelector("#gsc_oci_title + [data-ccfrank-owned]")?.textContent === "CCF B",
+      );
+      assert.equal(await page.locator(detailBadge).textContent(), "CCF B");
+    }
+    await page.locator(".gsc_oci_value").evaluate((el) => { el.textContent += " Workshops"; });
+    await page.waitForFunction(
+      () => !document.querySelector("#gsc_oci_title + [data-ccfrank-owned]"),
+    );
+    assert.equal(await page.locator("#secon " + selector).textContent(), "CCF B");
     assert.equal(
       await page.locator("#infocom " + selector)
         .evaluate((el) => getComputedStyle(el).backgroundColor),
@@ -123,6 +168,9 @@ const selector = '[data-ccfrank-owned="true"]';
     await page.waitForFunction(
       () => document.querySelector("#infocom [data-ccfrank-owned]")?.textContent === "CCF A",
     );
+    await page.waitForFunction(
+      () => document.querySelector("#secon [data-ccfrank-owned]")?.textContent === "CCF B",
+    );
     for (const url of [
       "https://www.google.com/search?q=extension-test",
       "https://dblp.org/search?q=extension-test",
@@ -135,7 +183,7 @@ const selector = '[data-ccfrank-owned="true"]';
     }
     assert.deepEqual(errors, []);
     console.log(
-      "Actual unpacked extension passed: Chrome manifest injection, isolated scripts, CSS colors, years, INFOCOM search/profile regression, dynamic edits, refresh, and Google-Scholar-only scope.",
+      "Actual unpacked extension passed: Chrome manifest injection, isolated scripts, CSS colors, INFOCOM/SECON search/profile regression, localized publication details, dynamic edits, refresh, and Google-Scholar-only scope.",
     );
   } finally {
     await context?.close();
